@@ -25,7 +25,7 @@ def getAnalysis(score):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-fileName = 'Microsoft.csv'
+fileName = 'MicrosoftMergedData.csv'
 
 # Read csv, put it in dataframe
 df = pd.read_csv(fileName)
