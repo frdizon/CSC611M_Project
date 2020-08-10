@@ -2,6 +2,7 @@ import tweepy
 import pandas as pd
 import numpy as np 
 import re
+import pprint
 
 # HELPERS: -------------------------------------------------------------
 
@@ -16,37 +17,30 @@ def cleanTxt(text):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-searchString = "Samsung"
-fileName = "Samsung30Day.csv"
+queryString = "Samsung lang:en"
+fileName = "SamsungAug0726.csv"
+fromDateCollect = "202007260000"
+toDateCollect = "202008012359"
 # tweetCount = 10 # 100 Max only
 
 
 # Twitter Api Credentials
 consumerKey = "6oOOEuhf5y32tC13XGXyJ37Zn"
 consumerSecrect = "IENqyXCIMkUkOrtFBZqlUY7YgOGfqP2w7dg97mciuYIiEjSdrB"
-tweeterEnvName = "frz_Application"
+tweeterEnvName = "PoC"
 
 auth = tweepy.AppAuthHandler(consumerKey, consumerSecrect)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
-mainDf = pd.DataFrame({'full_text': [],
+mainDf = pd.DataFrame({'text': [],
                     'author_name': [],
                     'created_at': []})
 
-# Sample Usage from tweepy docs
-# tweepy search API
-# posts = api.search(searchString, count=tweetCount, lang="en", tweet_mode="extended")
-
-for tweetsPage in tweepy.Cursor(api.search_30_day(tweeterEnvName, searchString, lang="en", tweet_mode="extended")).pages():
-    pagedf = pd.DataFrame({'full_text': [tweet.full_text for tweet in posts],
-                    'author_name': [tweet.user.name for tweet in posts],
-                    'created_at': [tweet.created_at for tweet in posts]})
+for tweetsPage in tweepy.Cursor(api.search_30_day, tweeterEnvName, queryString, fromDate=fromDateCollect, toDate=toDateCollect).pages(100):
+    pagedf = pd.DataFrame({'text': [tweet.text for tweet in tweetsPage],
+                    'author_name': [tweet.user.name for tweet in tweetsPage],
+                    'created_at': [tweet.created_at for tweet in tweetsPage]})
     mainDf = mainDf.append(pagedf)
-
-# Put results to pandas dataframe
-# df = pd.DataFrame([tweet.user.name for tweet in posts],
-#         columns=['Tweets'])
-
 
 # Clean the tweets
 # df['full_text'] = df['full_text'].apply(cleanTxt)
