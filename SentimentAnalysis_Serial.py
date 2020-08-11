@@ -25,7 +25,7 @@ def getAnalysis(score):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-fileName = 'MicrosoftMergedData.csv'
+fileName = '../DataUtils/SamsungData.csv'
 
 # Read csv, put it in dataframe
 df = pd.read_csv(fileName)
@@ -39,7 +39,7 @@ neutralCount = 0 # -0.05 <= n <= 0.05
 negativeCount = 0 # n > 0.05
 
 #  this can be parallelized
-for tweet in df['Tweets']:
+for tweet in df['text']:
     polarityValue = getPolarity(tweet)
     # Critical Section Start
     if -0.05 <= polarityValue and polarityValue <= 0.05:
@@ -71,7 +71,7 @@ print(mostPolarity + '( Positive: ' + str(positiveCount)
 averagePolarityVal = 0
 
 #  this can be parallelized
-for tweet in df['Tweets']:
+for tweet in df['text']:
     polarityValue = getPolarity(tweet)
     # Critical Section Start
     averagePolarityVal = averagePolarityVal + polarityValue
