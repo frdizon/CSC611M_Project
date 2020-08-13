@@ -2,6 +2,7 @@ from textblob import TextBlob
 import pandas as pd
 import numpy as np 
 import re
+import time
 
 # HELPERS: -------------------------------------------------------------
 
@@ -25,13 +26,14 @@ def getAnalysis(score):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-fileName = 'MicrosoftMergedData.csv'
+fileName = 'SamsungTweetsData.csv'
 
 # Read csv, put it in dataframe
 df = pd.read_csv(fileName)
 
 
 # Calculate Max Category count (Approach 1)-------------------------------
+timeStart1 = time.time()
 
 # Set Polarity Categories count
 positiveCount = 0 # n < -0.05
@@ -39,7 +41,7 @@ neutralCount = 0 # -0.05 <= n <= 0.05
 negativeCount = 0 # n > 0.05
 
 #  this can be parallelized
-for tweet in df['Tweets']:
+for tweet in df['text']:
     polarityValue = getPolarity(tweet)
     # Critical Section Start
     if -0.05 <= polarityValue and polarityValue <= 0.05:
@@ -61,17 +63,19 @@ if mostPolarityValue < negativeCount:
 print('APPROACH 1 Results:')
 print(mostPolarity + '( Positive: ' + str(positiveCount) 
         + ', Neutral: ' + str(neutralCount), ', Negative: ' + str(negativeCount) + ')')
+print('Time Taken: ' + str(time.time() - timeStart1 ) + 's')
 
 # Approach 1 END---------------------------------------------------------
 
 # Calculate Average Polarity (Approach 2)-------------------------------
+timeStart2 = time.time()
 
 # Set Polarity Categories count
 
 averagePolarityVal = 0
 
 #  this can be parallelized
-for tweet in df['Tweets']:
+for tweet in df['text']:
     polarityValue = getPolarity(tweet)
     # Critical Section Start
     averagePolarityVal = averagePolarityVal + polarityValue
@@ -86,5 +90,5 @@ elif averagePolarityVal < -0.05:
     print("Negative (Value: " + str(averagePolarityVal) + ')')
 elif averagePolarityVal > 0.05:
     print("Positive (Value: " + str(averagePolarityVal) + ')')
-
+print('Time Taken: ' + str(time.time() - timeStart2 ) + 's')
 # # Approach 2 END---------------------------------------------------------

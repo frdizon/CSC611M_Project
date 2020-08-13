@@ -9,8 +9,9 @@ def tweetDuplicateChecker(tweetsdf, tweetStr):
 # ----------------------------------------------------------------------
 
 # PARAMS SET:
-outputFileName = "SamsungMergedData.csv" # output file name
-datasets = ["Samsung1.csv","Samsung2.csv","Samsung3.csv","Samsung4.csv","Samsung5.csv"] # data sets to be merged
+outputFileName = "SamsungTweetsData.csv" # output file name
+datasets = ["SamsungAug0719.csv","SamsungAug0726.csv"] # data sets to be merged
+removeDuplicates = False
 
 
 # create output dataframe
@@ -23,7 +24,8 @@ for ds in datasets:
     finalTweetListDf = finalTweetListDf.append(pd.read_csv(ds))
 
 # Remove dupliate tweets
-finalTweetListDf.drop_duplicates(subset=['Tweets'])
+if removeDuplicates:
+    finalTweetListDf.drop_duplicates(subset=['Tweets'])
 
 # Export into a file
 finalTweetListDf.to_csv(outputFileName)
