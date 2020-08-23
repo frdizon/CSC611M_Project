@@ -22,14 +22,14 @@ def getAnalysis(score):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-fileName = 'SamsungTweetsData.csv'
+fileName = 'SamsungTweetsDataX5.csv'
+
+timeStart1 = time.time()
 
 # Read csv, put it in dataframe
 df = pd.read_csv(fileName)
 
 # NLP Process Start -----------------------------------------------------
-
-timeStart1 = time.time()
 
 # Set Polarity Categories count
 positiveCount = 0 # n < -0.05
