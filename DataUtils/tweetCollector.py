@@ -16,8 +16,8 @@ def cleanTxt(text):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-searchString = "Samsung"
-fileName = "Samsung5.csv"
+searchString = "Samsung lang:en"
+fileName = "Samsung1.csv"
 tweetCount = 100 # 100 Max only
 
 

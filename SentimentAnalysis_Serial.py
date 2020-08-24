@@ -22,7 +22,7 @@ def getAnalysis(score):
 # -----------------------------------------------------------------------
 
 # PARAMS SET:
-fileName = 'SamsungTweetsData.csv'
+fileName = 'SamsungDataFull.csv'
 
 # Read csv, put it in dataframe
 df = pd.read_csv(fileName)
@@ -59,7 +59,7 @@ if mostPolarityValue < negativeCount:
     mostPolarity = 'Negative'
 totalCount = positiveCount + neutralCount + negativeCount
 print('APPROACH 1 Results:') # TO DO: Show Percentage
-print(mostPolarity + '( Positive: ' + str(positiveCount) + '(' + str((positiveCount/totalCount) * 100) + '%)' 
+print(mostPolarity + ' (Positive: ' + str(positiveCount) + '(' + str((positiveCount/totalCount) * 100) + '%)' 
         + ', Neutral: ' + str(neutralCount) + '(' + str((neutralCount/totalCount) * 100) + '%)'
         ', Negative: ' + str(negativeCount) + '(' + str((negativeCount/totalCount) * 100) + '%)' + ')')
 print('Time Taken: ' + str(time.time() - timeStart1 ) + 's')

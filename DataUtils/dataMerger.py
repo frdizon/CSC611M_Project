@@ -9,8 +9,8 @@ def tweetDuplicateChecker(tweetsdf, tweetStr):
 # ----------------------------------------------------------------------
 
 # PARAMS SET:
-outputFileName = "SamsungTweetsData.csv" # output file name
-datasets = ["SamsungAug0719.csv","SamsungAug0726.csv"] # data sets to be merged
+outputFileName = "SamsungDataFull.csv" # output file name SamsungTweetsData
+datasets = ["Samsung23.csv","Samsung0802.csv","SamsungAug0719.csv", "SamsungAug0726.csv"] # data sets to be merged
 removeDuplicates = False
 
 
