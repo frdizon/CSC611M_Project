@@ -34,23 +34,6 @@ class EvaluateTweetsProcess(Process):
         self.negativeCount = negativeCount
 
     def run(self):
-
-            # polarityValue = getPolarity(tweet)
-            # if -0.05 <= polarityValue and polarityValue <= 0.05:
-            #     localPositiveCount += 1
-            # elif polarityValue < -0.05:
-            #     localNeutralCount += 1
-            # elif polarityValue > 0.05:
-            #     localNegativeCount += 1
-            
-            # # Critical Section Start
-            # self.lock.acquire()
-            # self.positiveCount.value += localPositiveCount
-            # self.negativeCount.value += localNeutralCount
-            # self.neutralCount.value += localNegativeCount
-            # self.lock.release()
-            # # Critical Section End
-
         for tweet in self.tweets['text']:
             polarityValue = getPolarity(tweet)
             # Critical Section Start
@@ -70,7 +53,7 @@ if __name__ == '__main__':
 
     # PARAMS SET:
     fileName = 'SamsungDataFinalX4.csv'
-    processCount = 3
+    processCount = 5
 
     timeStart1 = time.time()
 

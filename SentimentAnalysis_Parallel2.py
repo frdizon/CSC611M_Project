@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # PARAMS SET:
     fileName = 'SamsungDataFinalX4.csv'
-    processCount = 2
+    processCount = 5
 
     timeStart1 = time.time()
 
