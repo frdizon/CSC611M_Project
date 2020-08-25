@@ -17,7 +17,7 @@ def cleanTxt(text):
 
 # PARAMS SET:
 searchString = "Samsung lang:en"
-fileName = "Samsung1.csv"
+fileName = "Samsung5.csv"
 tweetCount = 100 # 100 Max only
 
 
@@ -30,13 +30,16 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 
 # Sample Usage from tweepy docs
 # tweepy search API
-posts = api.search(searchString, count=tweetCount, lang="en", tweet_mode="extended")
+posts = api.search(searchString, count=tweetCount, lang="en")
 
 # Put results to pandas dataframe
-df = pd.DataFrame([tweet.full_text for tweet in posts],
-        columns=['Tweets'])
+# df = pd.DataFrame([tweet.full_text for tweet in posts],
+#         columns=['Tweets'])
+df = pd.DataFrame({'text': [tweet.text for tweet in posts],
+        'author_name': [tweet.user.name for tweet in posts],
+        'created_at': [tweet.created_at for tweet in posts]})
 
 # Clean the tweets
-df['Tweets'] = df['Tweets'].apply(cleanTxt)
+# df['Tweets'] = df['Tweets'].apply(cleanTxt)
 df.to_csv(fileName)
 print(df)
