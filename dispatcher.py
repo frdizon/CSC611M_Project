@@ -7,24 +7,6 @@ import sys
 
 # -----------------------------------------------------------------------
 
-def printResults():
-    mostPolarity = 'Positive'
-    mostPolarityValue = positiveCount.value
-    if mostPolarityValue < neutralCount.value:
-        mostPolarityValue = neutralCount.value
-        mostPolarity = 'Neutral'
-    if mostPolarityValue < negativeCount.value:
-        mostPolarityValue = negativeCount.value
-        mostPolarity = 'Negative'
-    totalCount = positiveCount.value + neutralCount.value + negativeCount.value
-    print('APPROACH 1 Results:') # TO DO: Show Percentage
-    print(mostPolarity + '( Positive: ' + str(positiveCount.value) + '(' + str((positiveCount.value/totalCount) * 100) + '%)' 
-            + ', Neutral: ' + str(neutralCount.value) + '(' + str((neutralCount.value/totalCount) * 100) + '%)'
-            ', Negative: ' + str(negativeCount.value) + '(' + str((negativeCount.value/totalCount) * 100) + '%)' + ')')
-    print('Time Taken: ' + str(time.time() - timeStart1 ) + 's')
-
-# -----------------------------------------------------------------------
-
 class Results:
     def __init__(self):
         self.positiveCount = Value('i', 0) # n < -0.05
