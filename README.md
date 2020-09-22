@@ -17,3 +17,6 @@ Distributed Programming Results: N/A <br />
 
 # Resources
 - https://medium.com/better-programming/twitter-sentiment-analysis-15d8892c0082 (Where I based the current process) <br />
+
+# run rabbitmq server using docker
+docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
