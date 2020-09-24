@@ -4,38 +4,41 @@ import time
 from multiprocessing import Value
 import pika
 import sys
+import json
 
 # -----------------------------------------------------------------------
 
 class Results:
     def __init__(self):
-        self.positiveCount = Value('i', 0) # n < -0.05
-        self.neutralCount = Value('i', 0) # -0.05 <= n <= 0.05
-        self.negativeCount = Value('i', 0) # n > 0.05
+        self.positiveCount = 0 # n < -0.05
+        self.neutralCount = 0 # -0.05 <= n <= 0.05
+        self.negativeCount = 0 # n > 0.05
 
     def callback(self, ch, method, properties, body):
-        self.positiveCount.value += body.positiveCount.value
-        self.neutralCount.value += body.neutralCount.value
-        self.negativeCount.value += body.negativeCount.value
+        sentResult = json.loads(body)
+        print(sentResult)
+        self.positiveCount += sentResult['positiveCount']
+        self.neutralCount += sentResult['neutralCount']
+        self.negativeCount += sentResult['negativeCount']
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def print(self, timestart):
         mostPolarity = 'Positive'
-        mostPolarityValue = self.positiveCount.value
-        if mostPolarityValue < self.neutralCount.value:
-            mostPolarityValue = self.neutralCount.value
+        mostPolarityValue = self.positiveCount
+        if mostPolarityValue < self.neutralCount:
+            mostPolarityValue = self.neutralCount
             mostPolarity = 'Neutral'
-        if mostPolarityValue < self.negativeCount.value:
-            mostPolarityValue = self.negativeCount.value
+        if mostPolarityValue < self.negativeCount:
+            mostPolarityValue = self.negativeCount
             mostPolarity = 'Negative'
-        totalCount = self.positiveCount.value + self.neutralCount.value + self.negativeCount.value
+        totalCount = self.positiveCount + self.neutralCount + self.negativeCount
         print('APPROACH 1 Results:') # TO DO: Show Percentage
-        print(mostPolarity + '( Positive: ' + str(positiveCount.value) 
-            + '(' + str((self.positiveCount.value/totalCount) * 100)    
-            + '%)' + ', Neutral: ' + str(self.neutralCount.value) + '(' 
-            + str((self.neutralCount.value/totalCount) * 100) + '%)'
-            ', Negative: ' + str(self.negativeCount.value) + '(' 
-            + str((self.negativeCount.value/totalCount) * 100) + '%)' + ')')
+        print(mostPolarity + '( Positive: ' + str(positiveCount) 
+            + '(' + str((self.positiveCount/totalCount) * 100)    
+            + '%)' + ', Neutral: ' + str(self.neutralCount) + '(' 
+            + str((self.neutralCount/totalCount) * 100) + '%)'
+            ', Negative: ' + str(self.negativeCount) + '(' 
+            + str((self.negativeCount/totalCount) * 100) + '%)' + ')')
         print('Time Taken: ' + str(time.time() - timestart) + 's')
 
 # Message Queue: ----------------------------------------------------------
@@ -54,7 +57,7 @@ class MessageQueue:
         self.channel.basic_publish(
             exchange='',
             routing_key=queue_name,
-            body=tweets,
+            body=json.dumps(tweets.to_json()),
             properties=pika.BasicProperties(
                 delivery_mode=2,  # make message persistent
             ))
@@ -71,12 +74,12 @@ class MessageQueue:
 
 if __name__ == '__main__':
     # PARAMS SET:
-    fileName = 'SamsungDataFinalX4.csv'
-    batchCount = 10
+    fileName = 'SamsungDataFinal.csv'
+    batchCount = 100
     timestart = time.time()
 
     # Read csv, put it in dataframe
-    df = pd.read_csv(fileName)
+    tweetsFulldf = pd.read_csv(fileName)
 
     # initialize results
     result = Results()
@@ -85,11 +88,19 @@ if __name__ == '__main__':
     mq = MessageQueue('localhost')
 
     # dispatch batch tasks to workers
-    batches = np.array_split(df.to_numpy(), batchCount)
+    # batches = np.array_split(df.to_numpy(), batchCount)
+    index = 1
+    rowCount = int(len(tweetsFulldf))
 
-    for batch in batches:
-        print(batch)
-        mq.dispatch('dispatch_queue', batch)
+    for offsetIndex in range(0, rowCount, batchCount):
+        tweetsDataBatch = tweetsFulldf[offsetIndex : offsetIndex+batchCount]
+        mq.dispatch('dispatch_queue', tweetsDataBatch)
+        print('batch ' + str(index) + ' sent')
+        index += 1
+
+    # for batch in batches:
+    #     print(batch)
+    #     mq.dispatch('dispatch_queue', batch)
 
     mq.listen('results_queue', result.callback)
 

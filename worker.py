@@ -1,7 +1,8 @@
 from textblob import TextBlob
 from multiprocessing import Process, Lock, Value
 import pika
-import sys
+import json
+import pandas as pd
 
 # HELPERS: -------------------------------------------------------------
 
@@ -14,13 +15,13 @@ def getPolarity(text):
 class EvaluateTweetsProcess(Process):
     def __init__(self, tweets, pos_count, neu_count, neg_count):
         Process.__init__(self)
-        self.tweets = tweets
+        self.tweetsDf = pd.read_json(tweets)
         self.positiveCount = pos_count
         self.neutralCount = neu_count
         self.negativeCount = neg_count
 
     def run(self):
-        for tweet in self.tweets['text']:
+        for tweet in self.tweetsDf['text']:
             polarityValue = getPolarity(tweet)
             if -0.05 <= polarityValue and polarityValue <= 0.05:
                 self.neutralCount.value += 1
@@ -57,17 +58,19 @@ class MessageQueue():
         neg_count = Value('i', 0) # n > 0.05
 
         evalTweetsProcess = EvaluateTweetsProcess(
-            body.decode(), pos_count, neu_count, neg_count)
+            json.loads(body.decode()), pos_count, neu_count, neg_count)
         evalTweetsProcess.start()
-
-        results = {
-          positiveCount: pos_count,
-          neutralCount: neu_count,
-          negativeCount: neg_count
-        }
+        evalTweetsProcess.join()
+        
+        results = dict(
+            positiveCount=pos_count.value,
+            neutralCount=neu_count.value,
+            negativeCount=neg_count.value,
+        )
 
         # dispatch back the results
-        self.dispatch('results_queue', results)
+        print('Message Sent.')
+        self.dispatch('results_queue', json.dumps(results))
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def listen(self, queue_name):
