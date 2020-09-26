@@ -25,9 +25,7 @@ class Results:
         self.neutralCount += sentResult['neutralCount']
         self.negativeCount += sentResult['negativeCount']
 
-        print(str(self.totalBatchProcessed) + ' ' + str(self.totalDispatched))
         if self.totalBatchProcessed == self.totalDispatched:
-            print('finish processing')
             self.print()
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
