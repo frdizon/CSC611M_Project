@@ -9,7 +9,10 @@ import json
 # -----------------------------------------------------------------------
 
 class Results:
-    def __init__(self):
+    def __init__(self, totalDispatched, timestart):
+        self.timestart = timestart
+        self.totalDispatched = totalDispatched
+        self.totalBatchProcessed = 0
         self.positiveCount = 0 # n < -0.05
         self.neutralCount = 0 # -0.05 <= n <= 0.05
         self.negativeCount = 0 # n > 0.05
@@ -17,12 +20,18 @@ class Results:
     def callback(self, ch, method, properties, body):
         sentResult = json.loads(body)
         print(sentResult)
+        self.totalBatchProcessed += 1
         self.positiveCount += sentResult['positiveCount']
         self.neutralCount += sentResult['neutralCount']
         self.negativeCount += sentResult['negativeCount']
+
+        print(str(self.totalBatchProcessed) + ' ' + str(self.totalDispatched))
+        if self.totalBatchProcessed == self.totalDispatched:
+            print('finish processing')
+            self.print()
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    def print(self, timestart):
+    def print(self):
         mostPolarity = 'Positive'
         mostPolarityValue = self.positiveCount
         if mostPolarityValue < self.neutralCount:
@@ -33,13 +42,8 @@ class Results:
             mostPolarity = 'Negative'
         totalCount = self.positiveCount + self.neutralCount + self.negativeCount
         print('APPROACH 1 Results:') # TO DO: Show Percentage
-        print(mostPolarity + '( Positive: ' + str(positiveCount) 
-            + '(' + str((self.positiveCount/totalCount) * 100)    
-            + '%)' + ', Neutral: ' + str(self.neutralCount) + '(' 
-            + str((self.neutralCount/totalCount) * 100) + '%)'
-            ', Negative: ' + str(self.negativeCount) + '(' 
-            + str((self.negativeCount/totalCount) * 100) + '%)' + ')')
-        print('Time Taken: ' + str(time.time() - timestart) + 's')
+        # print(mostPolarity + '( Positive: ' + str(positiveCount) + '(' + str((self.positiveCount/totalCount) * 100) + '%)' + ', Neutral: ' + str(self.neutralCount) + '(' + str((self.neutralCount/totalCount) * 100) + '%) , Negative: ' + str(self.negativeCount) + '(' + str((self.negativeCount/totalCount) * 100) + '%)' + ')')
+        print('Time Taken: ' + str(time.time() - self.timestart) + 's')
 
 # Message Queue: ----------------------------------------------------------
 
@@ -81,28 +85,28 @@ if __name__ == '__main__':
     # Read csv, put it in dataframe
     tweetsFulldf = pd.read_csv(fileName)
 
-    # initialize results
-    result = Results()
-
     # initialize message queue
     mq = MessageQueue('localhost')
 
     # dispatch batch tasks to workers
     # batches = np.array_split(df.to_numpy(), batchCount)
-    index = 1
+    index = 0
     rowCount = int(len(tweetsFulldf))
 
     for offsetIndex in range(0, rowCount, batchCount):
+        index += 1
         tweetsDataBatch = tweetsFulldf[offsetIndex : offsetIndex+batchCount]
         mq.dispatch('dispatch_queue', tweetsDataBatch)
         print('batch ' + str(index) + ' sent')
-        index += 1
 
     # for batch in batches:
     #     print(batch)
     #     mq.dispatch('dispatch_queue', batch)
 
+    # initialize results
+    result = Results(index, timestart)
+
     mq.listen('results_queue', result.callback)
 
     # print results after all tasks are done
-    result.print(timestart)
+    # result.print(timestart)
