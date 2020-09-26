@@ -32,7 +32,7 @@ class EvaluateTweetsProcess(Process):
 
 # Message Queue: ----------------------------------------------------------
 
-class MessageQueue():
+class MessageQueue:
     def __init__(self, host):
         self.batchProcessedCount = 0
         self.connection = pika.BlockingConnection(
