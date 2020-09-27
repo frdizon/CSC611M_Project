@@ -32,8 +32,9 @@ class EvaluateTweetsProcess(Process):
 
 # Message Queue: ----------------------------------------------------------
 
-class MessageQueue():
+class MessageQueue:
     def __init__(self, host):
+        self.batchProcessedCount = 0
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=host))
         self.channel = self.connection.channel()
@@ -52,6 +53,7 @@ class MessageQueue():
             ))
     
     def __callback(self, ch, method, properties, body):
+        self.batchProcessedCount += 1
         # Initialize Polarity Categories count
         pos_count = Value('i', 0) # n < -0.05
         neu_count = Value('i', 0) # -0.05 <= n <= 0.05
@@ -69,12 +71,13 @@ class MessageQueue():
         )
 
         # dispatch back the results
-        print('Message Sent.')
+        print('batch ' + str(self.batchProcessedCount) + ' processed')
         self.dispatch('results_queue', json.dumps(results))
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def listen(self, queue_name):
         self.channel.queue_declare(queue=queue_name, durable=True)
+        print(' [*] Waiting for messages. To exit press CTRL+C')
         self.channel.basic_qos(prefetch_count=1)
         self.channel.basic_consume(
             queue=queue_name, 
