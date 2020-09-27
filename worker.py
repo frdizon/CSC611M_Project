@@ -12,24 +12,6 @@ def getPolarity(text):
 
 # Process: -------------------------------------------------------------
 
-# class EvaluateTweetsProcess(Process):
-#     def __init__(self, tweets, pos_count, neu_count, neg_count):
-#         Process.__init__(self)
-#         self.tweetsDf = pd.read_json(tweets)
-#         self.positiveCount = pos_count
-#         self.neutralCount = neu_count
-#         self.negativeCount = neg_count
-
-#     def run(self):
-#         for tweet in self.tweetsDf['text']:
-#             polarityValue = getPolarity(tweet)
-#             if -0.05 <= polarityValue and polarityValue <= 0.05:
-#                 self.neutralCount.value += 1
-#             elif polarityValue < -0.05:
-#                 self.negativeCount.value += 1
-#             elif polarityValue > 0.05:
-#                 self.positiveCount.value += 1
-
 class EvaluateTweetsProcess(Process):
     def __init__(self, positiveCountlock, neutralCountlock, negativeCountlock, tweets, positiveCount, neutralCount, negativeCount):
         Process.__init__(self)
@@ -102,11 +84,6 @@ class MessageQueue:
         neu_count = Value('i', 0) # -0.05 <= n <= 0.05
         neg_count = Value('i', 0) # n > 0.05
 
-        # evalTweetsProcess = EvaluateTweetsProcess(
-        #     json.loads(body.decode()), pos_count, neu_count, neg_count)
-        # evalTweetsProcess.start()
-        # evalTweetsProcess.join()
-
         tweetsListDf = pd.read_json(json.loads(body.decode()))
 
         for processI in range(processCount):
@@ -133,7 +110,7 @@ class MessageQueue:
         # dispatch back the results
         self.dispatch('results_queue', json.dumps(results))
         ch.basic_ack(delivery_tag=method.delivery_tag)
-        print('Sent: ' + str(results) + ' processed')
+        print('Sent(' + str(self.batchProcessedCount) + '): ' + str(results))
 
     def listen(self, queue_name):
         self.channel.queue_declare(queue=queue_name, durable=True)

@@ -19,8 +19,9 @@ class Results:
 
     def callback(self, ch, method, properties, body):
         sentResult = json.loads(body)
-        print('Recieved: ' + str(sentResult))
         self.totalBatchProcessed += 1
+        print('Recieved(' + str(self.totalBatchProcessed) + ' of ' +  str(self.totalDispatched) + '): '
+                + str(sentResult))
         self.positiveCount += sentResult['positiveCount']
         self.neutralCount += sentResult['neutralCount']
         self.negativeCount += sentResult['negativeCount']
@@ -80,7 +81,7 @@ class MessageQueue:
 if __name__ == '__main__':
     # PARAMS SET:
     fileName = 'SamsungDataFinal.csv'
-    batchLength = 100
+    batchLength = 1000
     timestart = time.time()
 
     # Read csv, put it in dataframe
@@ -106,3 +107,11 @@ if __name__ == '__main__':
 
     # print results after all tasks are done
     result.print(timestart)
+    # while mq.channel._consumer_infos:
+    #     mq.channel.connection.process_data_events(time_limit=1) # 1 second
+    # mq.channel.stop_consuming(results_queue)
+    # mq.connection.close()
+    # try:
+    #     sys.exit(0)
+    # except SystemExit:
+    #     os._exit(0)
