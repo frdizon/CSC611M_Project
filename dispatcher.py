@@ -19,7 +19,7 @@ class Results:
 
     def callback(self, ch, method, properties, body):
         sentResult = json.loads(body)
-        print(sentResult)
+        print('Recieved: ' + str(sentResult))
         self.totalBatchProcessed += 1
         self.positiveCount += sentResult['positiveCount']
         self.neutralCount += sentResult['neutralCount']
@@ -40,7 +40,10 @@ class Results:
             mostPolarity = 'Negative'
         totalCount = self.positiveCount + self.neutralCount + self.negativeCount
         print('APPROACH 1 Results:') # TO DO: Show Percentage
-        # print(mostPolarity + '( Positive: ' + str(positiveCount) + '(' + str((self.positiveCount/totalCount) * 100) + '%)' + ', Neutral: ' + str(self.neutralCount) + '(' + str((self.neutralCount/totalCount) * 100) + '%) , Negative: ' + str(self.negativeCount) + '(' + str((self.negativeCount/totalCount) * 100) + '%)' + ')')
+        print(mostPolarity + '( Positive: ' + str(self.positiveCount)
+            + '(' + str((self.positiveCount/totalCount) * 100) + '%)'
+            + ', Neutral: ' + str(self.neutralCount) + '(' + str((self.neutralCount/totalCount) * 100)
+             + '%) , Negative: ' + str(self.negativeCount) + '(' + str((self.negativeCount/totalCount) * 100) + '%)' + ')')
         print('Time Taken: ' + str(time.time() - self.timestart) + 's')
 
 # Message Queue: ----------------------------------------------------------
@@ -77,7 +80,7 @@ class MessageQueue:
 if __name__ == '__main__':
     # PARAMS SET:
     fileName = 'SamsungDataFinal.csv'
-    batchCount = 100
+    batchLength = 100
     timestart = time.time()
 
     # Read csv, put it in dataframe
@@ -87,19 +90,14 @@ if __name__ == '__main__':
     mq = MessageQueue('localhost')
 
     # dispatch batch tasks to workers
-    # batches = np.array_split(df.to_numpy(), batchCount)
     index = 0
     rowCount = int(len(tweetsFulldf))
 
-    for offsetIndex in range(0, rowCount, batchCount):
+    for offsetIndex in range(0, rowCount, batchLength):
         index += 1
-        tweetsDataBatch = tweetsFulldf[offsetIndex : offsetIndex+batchCount]
+        tweetsDataBatch = tweetsFulldf[offsetIndex : offsetIndex+batchLength]
         mq.dispatch('dispatch_queue', tweetsDataBatch)
         print('batch ' + str(index) + ' sent')
-
-    # for batch in batches:
-    #     print(batch)
-    #     mq.dispatch('dispatch_queue', batch)
 
     # initialize results
     result = Results(index, timestart)
@@ -107,4 +105,4 @@ if __name__ == '__main__':
     mq.listen('results_queue', result.callback)
 
     # print results after all tasks are done
-    # result.print(timestart)
+    result.print(timestart)
