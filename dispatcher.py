@@ -113,12 +113,12 @@ if __name__ == '__main__':
     # Read csv, put it in dataframe
     tweetsFulldf = pd.read_csv(fileName)
 
-    # initialize message queue
-    mq = MessageQueue('localhost')
-
     # dispatch batch tasks to workers
     batchSenderProcess = BatchSenderProcess('localhost', tweetsFulldf, batchSize)
     batchSenderProcess.run()
+
+    # initialize message queue for results
+    mq = MessageQueue('localhost')
 
     # initialize results
     batchCount = len(range(0, int(len(tweetsFulldf)), batchSize))
